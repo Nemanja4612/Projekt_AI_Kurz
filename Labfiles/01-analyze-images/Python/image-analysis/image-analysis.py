@@ -146,30 +146,34 @@ def AnalyzeImage(image_filename, image_data, cv_client):
 def BackgroundForeground(endpoint, key, image_file):
     # Define the API version and mode
     api_version = "2023-02-01-preview"
-    mode="backgroundRemoval" # Can be "foregroundMatting" or "backgroundRemoval"
+    mode = "backgroundRemoval"  # Can be "foregroundMatting" or "backgroundRemoval"
    
     # Remove the background from the image or generate a foreground matte
     print('\nRemoving background from image...')
  
-    url = "{}computervision/imageanalysis:segment?api-version={}&mode={}".format(endpoint, api_version, mode)
+    url = f"{endpoint}/computervision/imageanalysis:segment?api-version={api_version}&mode={mode}"
  
-    headers= {
-    "Ocp-Apim-Subscription-Key": key,
-    "Content-Type": "application/json"
-}
+    headers = {
+        "Ocp-Apim-Subscription-Key": key,
+        "Content-Type": "application/json"
+    }
  
-    image_url="https://github.com/Nemanja4612/Projekt_AI__Kurz/tree/f20a2e7b050033c5fcf34e997b6d67287fed870b/Labfiles/01-analyze-images/Python/image-analysis{}?raw=true".format(image_file) 
+    image_url = f"https://raw.githubusercontent.com/Nemanja4612/Projekt_AI__Kurz/3b07f223400044a61d272123a61b079c8dbad62a/Labfiles/01-analyze-images/Python/image-analysis/{image_file}"
  
     body = {
-    "url": image_url,
-}
+        "url": image_url
+    }
  
     response = requests.post(url, headers=headers, json=body)
  
-    image=response.content
-    with open("backgroundForeground.png", "wb") as file:
-        file.write(image)
-print('  Results saved in backgroundForeground.png \n')
+    if response.status_code == 200:
+        image = response.content
+        with open("backgroundForeground.png", "wb") as file:
+            file.write(image)
+        print('Results saved in backgroundForeground.png\n')
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.json())
    
  
  
