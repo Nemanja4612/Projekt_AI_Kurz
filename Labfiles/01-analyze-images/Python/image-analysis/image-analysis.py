@@ -175,3 +175,4 @@ print('  Results saved in backgroundForeground.png \n')
  
 if __name__ == "__main__":
     main()
+    
