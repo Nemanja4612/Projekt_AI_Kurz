@@ -158,7 +158,7 @@ def BackgroundForeground(endpoint, key, image_file):
     "Content-Type": "application/json"
 }
  
-    image_url="https://github.com/MicrosoftLearning/mslearn-ai-vision/blob/main/Labfiles/01-analyze-images/Python/image-analysis/{}?raw=true".format(image_file)  
+    image_url="https://github.com/Nemanja4612/Projekt_AI__Kurz/tree/f20a2e7b050033c5fcf34e997b6d67287fed870b/Labfiles/01-analyze-images/Python/image-analysis{}?raw=true".format(image_file) 
  
     body = {
     "url": image_url,
@@ -175,4 +175,3 @@ print('  Results saved in backgroundForeground.png \n')
  
 if __name__ == "__main__":
     main()
-    
