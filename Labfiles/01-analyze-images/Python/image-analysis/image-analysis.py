@@ -95,7 +95,7 @@ def AnalyzeImage(image_filename, image_data, cv_client):
     fig = plt.figure(figsize=(image.width/100, image.height/100))
     plt.axis('off')
     draw = ImageDraw.Draw(image)
-    color = 'cyan'
+    color = 'yellow'
  
     for detected_object in result.objects.list:
         # Print object name
@@ -124,7 +124,7 @@ def AnalyzeImage(image_filename, image_data, cv_client):
     fig = plt.figure(figsize=(image.width/100, image.height/100))
     plt.axis('off')
     draw = ImageDraw.Draw(image)
-    color = 'cyan'
+    color = 'black'
  
     for detected_people in result.people.list:
         # Draw object bounding box
