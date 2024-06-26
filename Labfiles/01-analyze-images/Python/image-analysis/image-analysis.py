@@ -158,7 +158,8 @@ def BackgroundForeground(endpoint, key, image_file):
         "Content-Type": "application/json"
     }
  
-    image_url = f"https://raw.githubusercontent.com/Nemanja4612/Projekt_AI__Kurz/3b07f223400044a61d272123a61b079c8dbad62a/Labfiles/01-analyze-images/Python/image-analysis/{image_file}"
+    # Ensure the URL points to the raw image file on GitHub
+    image_url = f"https://raw.githubusercontent.com/Nemanja4612/Projekt_AI__Kurz/766b92886a00c1b299719898d83e5b25f2958a9c/Labfiles/01-analyze-images/Python/image-analysis/{image_file}"
  
     body = {
         "url": image_url
