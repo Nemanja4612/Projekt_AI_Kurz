@@ -1,7 +1,7 @@
 import requests
 from dotenv import load_dotenv
 import os
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import sys
 from matplotlib import pyplot as plt
 from azure.core.exceptions import HttpResponseError
@@ -64,6 +64,7 @@ def AnalyzeImage(image_filename, image_data, cv_client):
         print(f"Status code: {e.status_code}")
         print(f"Reason: {e.reason}")
         print(f"Message: {e.error.message}")
+        return
 
     # Display analysis results
     if result.caption is not None:
@@ -80,45 +81,58 @@ def AnalyzeImage(image_filename, image_data, cv_client):
         for tag in result.tags.list:
             print(" Tag: '{}' (confidence: {:.2f}%)".format(tag.name, tag.confidence * 100))
 
-    if result.objects is not None:
-        print("\nObjects in image:")
-        image = Image.open(image_filename)
-        fig = plt.figure(figsize=(image.width/100, image.height/100))
-        plt.axis('off')
-        draw = ImageDraw.Draw(image)
-        color = 'yellow'
+    # Load the image and prepare for drawing
+    image = Image.open(image_filename)
+    draw = ImageDraw.Draw(image)
+    color = 'cyan'
 
+    # Annotate detected objects
+    if result.objects is not None:
         for detected_object in result.objects.list:
+            # Print object name
             print(" {} (confidence: {:.2f}%)".format(detected_object.tags[0].name, detected_object.tags[0].confidence * 100))
+     
+            # Draw object bounding box
             r = detected_object.bounding_box
             bounding_box = ((r.x, r.y), (r.x + r.width, r.y + r.height))
             draw.rectangle(bounding_box, outline=color, width=3)
-            plt.annotate(detected_object.tags[0].name, (r.x, r.y), backgroundcolor=color)
+            draw.text((r.x, r.y), detected_object.tags[0].name, fill=color)
 
-        plt.imshow(image)
-        plt.tight_layout(pad=0)
-        outputfile = 'objects.jpg'
-        fig.savefig(outputfile)
-        print('  Results saved in', outputfile)
+    outputfile = 'objects.jpg'
+    image.save(outputfile)
+    print('Results saved in', outputfile)
 
+    # Annotate detected people
     if result.people is not None:
         print("\nPeople in image:")
-        image = Image.open(image_filename)
-        fig = plt.figure(figsize=(image.width/100, image.height/100))
-        plt.axis('off')
-        draw = ImageDraw.Draw(image)
-        color = 'black'
+        num_people = len(result.people.list)
+        print(f"Number of people detected: {num_people}")
 
-        for detected_people in result.people.list:
-            r = detected_people.bounding_box
-            bounding_box = ((r.x, r.y), (r.x + r.width, r.y + r.height))
-            draw.rectangle(bounding_box, outline=color, width=3)
+        # Create a new image for counting people
+        image_people_count = Image.open(image_filename)
+        draw_people_count = ImageDraw.Draw(image_people_count)
+        color = 'red'
+        font = ImageFont.load_default()  # You can customize the font if needed
 
-        plt.imshow(image)
-        plt.tight_layout(pad=0)
-        outputfile = 'people.jpg'
-        fig.savefig(outputfile)
-        print('  Results saved in', outputfile)
+        # Draw rectangles and count number of people
+        person_count = 0
+        for detected_person in result.people.list:
+            # Use bounding box to ensure it's a distinct person detection
+            person_confidence = detected_person.confidence  # Ensure this is the correct way to access confidence
+            if person_confidence > 0.5:  # Example confidence threshold
+                person_count += 1
+                r = detected_person.bounding_box
+                bounding_box = ((r.x, r.y), (r.x + r.width, r.y + r.height))
+                draw_people_count.rectangle(bounding_box, outline=color, width=3)
+                draw_people_count.text((r.x, r.y), f'{person_count}', fill=color, font=font)
+
+        # Display the total number of people detected
+        draw_people_count.text((20, 20), f'Total People: {person_count}', fill='black', font=font)
+        print(f"Filtered number of people detected: {person_count}")
+
+        outputfile_people_count = 'people_count.jpg'
+        image_people_count.save(outputfile_people_count)
+        print('Results saved in', outputfile_people_count)
 
 def BackgroundForeground(endpoint, key, image_data):
     # Define the API version and mode
